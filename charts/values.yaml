@@ -1,0 +1,51 @@
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+# Those values are passed by helm arguments
+image:
+  repository: NULL
+  tag: NULL
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+readinessProbe:
+  httpGet:
+    path: /healthy
+    port: 3000
+  initialDelaySeconds: 3
+  periodSeconds: 5
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 3000
+  initialDelaySeconds: 40
+  periodSeconds: 10
+
+hpa:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 3
+  metrics:
+    cpu:
+      targetAverageUtilization: 70
+    memory:
+      targetAverageUtilization: 70
+
+podAnnotations: {}
+
+nodeSelector: {}
+
+

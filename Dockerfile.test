@@ -1,0 +1,23 @@
+# Extending image
+FROM node:alpine
+
+# Versions
+RUN npm -v
+RUN node -v
+
+# App directory
+WORKDIR /app
+
+# Environment variables
+ENV NODE_ENV test
+ENV PORT 3000
+
+# Install app dependencies
+COPY src/package.json /app/
+RUN npm install
+
+# Bundle app source
+COPY src/ /app
+
+# Main command
+CMD [ "npm", "test" ]
