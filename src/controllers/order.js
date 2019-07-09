@@ -1,4 +1,5 @@
 const Order = require('../models/order');
+require('../config/config');
 
 // =====================
 // Get all orders
@@ -72,4 +73,88 @@ exports.deleteOrder = (req, res, next) => {
                 errors: err
             });
         });
+};
+
+// =====================
+// Add product to order
+// =====================
+exports.addProductToOrder = async (req, res, next) => {
+    let orderId = req.params.id; // orderId
+    let body = req.body; // parse body request
+    let newProduct = {
+        _id: body.id, // productId
+        quantity: parseInt(body.quantity, 10) //  productQty
+    };
+    let product;
+    let order;
+    let orig_stock;
+
+    // Check Order status and Product stock
+    try {
+        order = await Order.findById(orderId);  // get order
+
+        // If order is 'Closed', do not allow add product
+        if (order.status === 'Closed') {
+            throw new Error('Order is already Closed');
+        }
+
+        // Get product
+        let product = await axios.get(`http://${PRODUCT_SVC_SERVICE_HOST}:${PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`);
+        product = product.data;
+
+        // Check product stock, if not enough send error
+        if ((product.stock - newProduct.quantity) < 0) {
+            throw new Error('There is insufficient stock of Product');
+        }
+
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            msj: 'Error adding product to order',
+            errors: err.message
+        });
+    }
+
+    // Decrement stock and add product to order
+    try {
+
+        orig_stock = product.stock; // store original product qty
+        product.stock -= newProduct.quantity;   // decrement product stock
+
+        // Update product stock
+        await axios.put(`http://${PRODUCT_SVC_SERVICE_HOST}:${PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
+            stock: product.stock
+        });
+
+        // add product to order
+        // if the Order already has that product increment the quantity
+        if(order.items.id(newProduct._id)){
+            order.items.id(newProduct._id).quantity += newProduct.quantity
+        } else { // if not, add it to items
+            order.items.push(newProduct);
+        }
+
+        // save order
+        let orderDB = await order.save();
+
+        // return updated order
+        return res.json({
+            ok: true,
+            data: orderDB
+        });
+    
+    } catch (err) {
+
+        // Return original stock
+        await axios.put(`http://${PRODUCT_SVC_SERVICE_HOST}:${PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
+            stock: orig_stock
+        });
+
+        // Return error response
+        return res.status(500).json({
+            ok: false,
+            msj: 'Error adding product to order',
+            errors: err.message
+        });
+    }
 };

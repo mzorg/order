@@ -14,7 +14,11 @@ spec:
     spec:     # pod spec                  
       containers:
       - name: nodejs
+        {{- if .Values.image.tag }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        {{- else }}
+        image: "{{ .Values.image.repository }}"
+        {{- end }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: nodejsport
