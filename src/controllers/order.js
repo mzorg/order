@@ -1,6 +1,6 @@
 const Order = require('../models/order');
 const axios = require('axios');
-require('../config/config');
+let conf = require('../config/config');
 
 // =====================
 // Get all orders
@@ -100,7 +100,7 @@ exports.addProductToOrder = async (req, res, next) => {
         }
 
         // Get product
-        let product = await axios.get(`http://${PRODUCT_SVC_SERVICE_HOST}:${PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`);
+        let product = await axios.get(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${conf.newProduct._id}`);
         product = product.data;
 
         // Check product stock, if not enough send error
@@ -123,7 +123,7 @@ exports.addProductToOrder = async (req, res, next) => {
         product.stock -= newProduct.quantity;   // decrement product stock
 
         // Update product stock
-        await axios.put(`http://${PRODUCT_SVC_SERVICE_HOST}:${PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
+        await axios.put(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${conf.newProduct._id}`, {
             stock: product.stock
         });
 
@@ -147,7 +147,7 @@ exports.addProductToOrder = async (req, res, next) => {
     } catch (err) {
 
         // Return original stock
-        await axios.put(`http://${PRODUCT_SVC_SERVICE_HOST}:${PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
+        await axios.put(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${conf.newProduct._id}`, {
             stock: orig_stock
         });
 
