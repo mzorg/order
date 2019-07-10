@@ -1,19 +1,23 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: "{{ .Release.Name }}-deployment"
+  name: "{{ .Values.microservice.name }}-deployment"
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.microservice.name }}
   template:
     metadata:
-      name: nodejs
+      name: {{ .Values.microservice.name }}
       labels: # labels to select/identify the deployment
-        app: nodejs  
+        app: {{ .Values.microservice.name }}  
       annotations:
         timestamp: "{{ date "20060102150405" .Release.Time }}"
     spec:     # pod spec                  
       containers:
-      - name: nodejs
+      - name: {{ .Values.microservice.name }}
         {{- if .Values.image.tag }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         {{- else }}

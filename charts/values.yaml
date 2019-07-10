@@ -3,6 +3,9 @@
 replicaCount: 2
 
 # Those values are passed by helm arguments
+microservice:
+  name: NULL
+namespace: NULL
 image:
   repository: NULL
   tag: NULL
