@@ -1,6 +1,6 @@
 const uuidv1 = require('uuid/v1');
 
-exports = (err,req,res,next) => {
+module.exports = (err, req, res, next) => {
     let id = uuidv1();
     //logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip} - ${id}  - ${err.stack}`);
     return res.status(err.status).json({

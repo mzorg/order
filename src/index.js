@@ -3,7 +3,6 @@ require("./config/config");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const errorHandler = require("./middleware/errorHandler");
 
 let app = express();
 
@@ -23,7 +22,7 @@ mongoose.connect(process.env.URLDB, { useNewUrlParser: true }, (err, res) => {
 });
 
 // Handle errors middleware
-app.use(errorHandler);
+app.use(require("./middleware/errorHandler"));
 
 // Start express server
 let port = normalizePort(process.env.PORT || "3000");
