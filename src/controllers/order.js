@@ -100,8 +100,8 @@ exports.addProductToOrder = async (req, res, next) => {
         }
 
         // Get product
-        let product = await axios.get(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`);
-        product = product.data;
+        product = await axios.get(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`);
+        product = product.data.data;
 
         // Check product stock, if not enough send error
         if ((product.stock - newProduct.quantity) < 0) {
