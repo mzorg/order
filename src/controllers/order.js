@@ -112,7 +112,7 @@ exports.addProductToOrder = async (req, res, next) => {
         return res.status(500).json({
             ok: false,
             msj: 'Error adding product to order',
-            errors: err.message
+            errors: err
         });
     }
 
@@ -155,7 +155,7 @@ exports.addProductToOrder = async (req, res, next) => {
         return res.status(500).json({
             ok: false,
             msj: 'Error adding product to order',
-            errors: err.message
+            errors: err
         });
     }
 };
