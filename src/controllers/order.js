@@ -188,11 +188,7 @@ exports.checkoutOrder = async (req, res, next) => {
             itemQuantity = it.quantity;
 
             // Find product price in array of products
-            let prod = products.find((item, i) => {
-                if(item._id === itemId){
-                    return i;
-                }
-            });
+            let prod = products.find(product => product._id == itemId);
 
             itemPrice = prod.price;
 
