@@ -9,5 +9,6 @@ router.get('/orders', orderController.getOrders);
 router.post('/orders', orderController.createOrder);
 router.delete('/orders/:id', orderController.deleteOrder);
 router.put('/orders/:id/products', orderController.addProductToOrder);
+router.put('/orders/:id/checkout', orderController.checkoutOrder);
 
 module.exports = router;

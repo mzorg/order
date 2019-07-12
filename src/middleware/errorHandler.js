@@ -7,6 +7,7 @@ module.exports = (err, req, res, next) => {
         ok: false,
         msj: err.message,
         id,
-        errors: err.message
+        errors: err,
+        ...(process.env.DEBUG ? {stack: err.stack} : {}) // if DEBUG, print error stack
     });
 };

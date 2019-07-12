@@ -11,8 +11,11 @@ let urlDB;
 
 if (process.env.NODE_ENV === 'dev') {
     urlDB = 'mongodb+srv://matias:contra10@cluster0-jssy7.mongodb.net/orders?retryWrites=true';
+    process.env.DEBUG = true;
 } else {
     urlDB = process.env.MONGO_URI;
+    process.env.DEBUG = false;
+
 }
 process.env.URLDB = urlDB;
 

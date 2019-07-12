@@ -124,7 +124,7 @@ exports.addProductToOrder = async (req, res, next) => {
             stock: product.stock
         });
 
-        // add product to order
+        // Add product to order
         // if the Order already has that product increment the quantity
         if(order.items.id(newProduct._id)){
             order.items.id(newProduct._id).quantity += newProduct.quantity
@@ -132,10 +132,10 @@ exports.addProductToOrder = async (req, res, next) => {
             order.items.push(newProduct);
         }
 
-        // save order
+        // Save order
         let orderDB = await order.save();
 
-        // return updated order
+        // Return updated order
         return res.json({
             ok: true,
             data: orderDB
@@ -153,3 +153,69 @@ exports.addProductToOrder = async (req, res, next) => {
         next(err);
     }
 };
+
+// =====================
+// Checkout order
+// =====================
+exports.checkoutOrder = async (req, res, next) => {
+    var orderId = req.params.id;
+    try {
+        // Get order
+        order = await Order.findById(orderId);
+
+        // If order is 'Closed' do not checkout again
+        if (order.status === 'Closed') {
+            throw new Error('Order is already Closed');
+        }
+
+        let orderItems = order.items; // items in the order
+
+        order.total = 0;
+        let itemId;
+        let itemQuantity;
+        let itemPrice;
+        
+        // Get all products details included in the order
+        let ids = orderItems.map((el) => el._id); // extract product items
+        ids.toString(); // convert array to string
+        let products = await axios.get(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/?ids=${ids}`);
+        products = products.data.data;
+        
+        // Iterate over each item in the Order
+        for (const it of orderItems) {
+            // Get item (product) quantity
+            itemId = it._id;
+            itemQuantity = it.quantity;
+
+            // Find product price in array of products
+            let prod = products.find((item, i) => {
+                if(item._id === itemId){
+                    return i;
+                }
+            });
+
+            itemPrice = prod.price;
+
+            // Accumulate to order total
+            order.total += itemPrice * itemQuantity;
+        };
+        
+        // Update order status and order close date
+        order.status = 'Closed';
+        order.closedDate = Date.now();
+
+        // Save order
+        let orderDB = await order.save();
+
+        // Return updated order
+        return res.json({
+            ok: true,
+            data: orderDB
+        });
+
+    } catch (err) {
+        // Return error response
+        err.status = 500;
+        next(err);
+    }
+}
