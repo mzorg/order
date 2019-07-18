@@ -31,7 +31,7 @@ exports.createOrder = (req, res, next) => {
     let body = req.body; // parse body request
     // Create a new Order
     //let userId = req.user.id;
-    userId = req.user.userId; // get userId from token
+    let userId = req.user.id; // get userId from token
     let order = new Order({
         userId
     });
@@ -158,7 +158,8 @@ exports.addProductToOrder = async (req, res, next) => {
 // Checkout order
 // =====================
 exports.checkoutOrder = async (req, res, next) => {
-    var orderId = req.params.id;
+    let orderId = req.params.id;
+    let userId = req.user.userId;
     try {
         // Get order
         order = await Order.findById(orderId);
@@ -195,6 +196,17 @@ exports.checkoutOrder = async (req, res, next) => {
             // Accumulate to order total
             order.total += itemPrice * itemQuantity;
         };
+
+        // Get the accoundId belong to a userId
+        let accountId = await axios.get(`http://${conf.ACCOUNT_SVC_SERVICE_HOST}:${conf.ACCOUNT_SVC_SERVICE_PORT}/accounts/user/${userId}`);
+        accountId = accountId.data.data.accountId;
+
+        // Check credit for that account
+        let credit = await axios.get(`http://${conf.ACCOUNT_SVC_SERVICE_HOST}:${conf.ACCOUNT_SVC_SERVICE_PORT}/accounts/${accountId}/credit`);
+        credit = accountId.data.data.credit;
+        if (order.total > parseInt(credit)) {
+            throw new Error('The user does not have enough credit to checkout this order'); // the user cannot buy such amount
+        }
         
         // Update order status and order close date
         order.status = 'Closed';
