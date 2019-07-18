@@ -31,7 +31,7 @@ exports.createOrder = (req, res, next) => {
     let body = req.body; // parse body request
     // Create a new Order
     //let userId = req.user.id;
-    userId = 1; // TODO: DELETE ME WHEN ADD AUTH
+    userId = req.user.userId; // get userId from token
     let order = new Order({
         userId
     });
