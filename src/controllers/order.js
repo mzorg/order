@@ -30,7 +30,6 @@ exports.getOrders = (req, res, next) => {
 exports.createOrder = (req, res, next) => {
     let body = req.body; // parse body request
     // Create a new Order
-    //let userId = req.user.id;
     let userId = req.user.id; // get userId from token
     let order = new Order({
         userId
