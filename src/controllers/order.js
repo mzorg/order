@@ -224,7 +224,7 @@ exports.checkoutOrder = async (req, res, next) => {
               token: req.get('token') // set token in request
             }
         });
-        credit = accountId.data.data.credit;
+        credit = credit.data.data.credit;
         if (order.total > parseInt(credit)) {
             throw new Error('The user does not have enough credit to checkout this order'); // the user cannot buy such amount
         }
