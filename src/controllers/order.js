@@ -109,7 +109,7 @@ exports.addProductToOrder = async (req, res, next) => {
 
     } catch (err) {
         err.status = 500;
-        next(err);
+        return next(err);
     }
 
     // Decrement stock and add product to order
@@ -149,7 +149,7 @@ exports.addProductToOrder = async (req, res, next) => {
 
         // Return error response
         err.status = 500;
-        next(err);
+        return next(err);
     }
 };
 
@@ -223,6 +223,6 @@ exports.checkoutOrder = async (req, res, next) => {
     } catch (err) {
         // Return error response
         err.status = 500;
-        next(err);
+        return next(err);
     }
 }
