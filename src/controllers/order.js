@@ -121,6 +121,10 @@ exports.addProductToOrder = async (req, res, next) => {
         // Update product stock
         await axios.put(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
             stock: product.stock
+        }, {
+            headers: {
+              token: req.get('token') // set token in request
+            }
         });
 
         // Add product to order
@@ -145,7 +149,11 @@ exports.addProductToOrder = async (req, res, next) => {
             // Return original stock
             await axios.put(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
                 stock: orig_stock
-            });
+            }, {
+                headers: {
+                  token: req.get('token') // set token in request
+                }
+              });
         } catch {
             // Return error response
             err.status = 500;
@@ -164,7 +172,7 @@ exports.addProductToOrder = async (req, res, next) => {
 // =====================
 exports.checkoutOrder = async (req, res, next) => {
     let orderId = req.params.id;
-    let userId = req.user.userId;
+    let userId = req.user.id;
     try {
         // Get order
         order = await Order.findById(orderId);
@@ -203,11 +211,19 @@ exports.checkoutOrder = async (req, res, next) => {
         };
 
         // Get the accoundId belong to a userId
-        let accountId = await axios.get(`http://${conf.ACCOUNT_SVC_SERVICE_HOST}:${conf.ACCOUNT_SVC_SERVICE_PORT}/accounts/user/${userId}`);
+        let accountId = await axios.get(`http://${conf.ACCOUNT_SVC_SERVICE_HOST}:${conf.ACCOUNT_SVC_SERVICE_PORT}/accounts/user/${userId}`, {
+            headers: {
+                token: req.get('token') // set token in request
+            }
+        });
         accountId = accountId.data.data.accountId;
 
         // Check credit for that account
-        let credit = await axios.get(`http://${conf.ACCOUNT_SVC_SERVICE_HOST}:${conf.ACCOUNT_SVC_SERVICE_PORT}/accounts/${accountId}/credit`);
+        let credit = await axios.get(`http://${conf.ACCOUNT_SVC_SERVICE_HOST}:${conf.ACCOUNT_SVC_SERVICE_PORT}/accounts/${accountId}/credit`, {
+            headers: {
+              token: req.get('token') // set token in request
+            }
+        });
         credit = accountId.data.data.credit;
         if (order.total > parseInt(credit)) {
             throw new Error('The user does not have enough credit to checkout this order'); // the user cannot buy such amount
