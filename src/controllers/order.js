@@ -31,7 +31,11 @@ exports.createOrder = (req, res, next) => {
     let body = req.body; // parse body request
     // Create a new Order
     //let userId = req.user.id;
+<<<<<<< HEAD
     let userId = req.user.id; // get userId from token
+=======
+    let userId = req.user.userId; // get userId from token
+>>>>>>> 0dabfec7449e59e1a7d50c8fbf9a4b6ef186a027
     let order = new Order({
         userId
     });
