@@ -141,11 +141,17 @@ exports.addProductToOrder = async (req, res, next) => {
         });
     
     } catch (err) {
-
-        // Return original stock
-        await axios.put(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
-            stock: orig_stock
-        });
+        try {
+            // Return original stock
+            await axios.put(`http://${conf.PRODUCT_SVC_SERVICE_HOST}:${conf.PRODUCT_SVC_SERVICE_PORT}/products/${newProduct._id}`, {
+                stock: orig_stock
+            });
+        } catch {
+            // Return error response
+            err.status = 500;
+            err.msj = "Cannot rollback stock of product";
+            return next(err);
+        }
 
         // Return error response
         err.status = 500;
